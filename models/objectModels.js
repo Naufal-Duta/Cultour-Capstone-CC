@@ -24,7 +24,12 @@ const Object = mongoose.Schema (
 
         description: {
             type: String,
+        },
+
+        image: {
+            type: Array 
         }
+
         
     }
 )
