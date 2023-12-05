@@ -1,5 +1,4 @@
 const jwt = require("jsonwebtoken");
-const Users = require('../models/usersModels');
 
 const config = process.env;
 
@@ -18,5 +17,6 @@ const verifyToken = (req, res, next) => {
   }
   return next();
 };
+
 
 module.exports = verifyToken;

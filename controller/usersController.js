@@ -4,7 +4,6 @@ const jwt = require("jsonwebtoken")
 require("dotenv").config();
 
 const registerUsers = async (req, res) => {
-
     try {
         if(req.body.password === req.body.repeat_password) {
             const register = await Users.create({
@@ -23,7 +22,7 @@ const registerUsers = async (req, res) => {
             })
     
             register.token = token;
-            res.status(200).json(register);
+            res.json(register);
         }
         
         else if (req.body.password !== req.body.repeat_password) {

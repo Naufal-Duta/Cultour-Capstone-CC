@@ -1,17 +1,21 @@
 const express = require('express')
-require('dotenv').config()
-const mongoose = require('mongoose')
-const app = express()
 const usersRoute = require('./routes/usersRoute')
+const objectRoute = require('./routes/objectRoute')
 const errorMiddleware = require('./middleware/errorMiddleware')
 const auth = require('./middleware/auth')
+const mongoose = require('mongoose')
+require('dotenv').config()
+const app = express()
+var cors = require('cors')
+const { throws } = require('assert')
 
 const MONGO_URL = process.env.MONGO_URL
 const PORT = process.env.PORT
 
+app.use(cors())
 app.use(express.json())
-
-app.use('/api', usersRoute);
+app.use('/api/users', usersRoute);
+app.use('/api/object', auth, objectRoute);
 
 app.get('/', (req, res) => {
     res.send('GET diterima')
@@ -25,9 +29,8 @@ app.use(errorMiddleware);
 
 mongoose.connect(MONGO_URL)
     .then(() => {
-        console.log('Connected to mongoDB')
         app.listen(3000, () => {
-            console.log(`Listening on port ${PORT}`)
+            console.log(`Connected to mongoDB and Listening on port ${PORT}`)
         })
     })
 
