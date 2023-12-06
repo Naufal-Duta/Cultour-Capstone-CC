@@ -1,4 +1,5 @@
 const Object = require('../models/objectModels')
+const Users = require('../models/usersModels')
 
 const getAllObject = async (req, res) => {
     try {
@@ -47,4 +48,43 @@ const addObject = async (req, res) => {
     }
 }
 
-module.exports = {getAllObject, addObject, getObjectById}
+const saveObject = async (req, res) => {
+    try {
+        const userToken = req.headers.userToken
+        await Users.findOneAndUpdate({
+            token: userToken
+        },
+        {
+            $push: {
+                objectSaved: req.params._id}
+        },
+        {
+            returnNewDocument:true
+        })
+        res.status(200).send({message: "Save successful"})
+    } catch (error) {
+        res.status(500).send({error})
+    }
+}
+
+const unsaveObject = async (req, res) => {
+    try {
+        const userToken = req.headers.userToken
+        await Users.findOneAndUpdate({
+            token: userToken
+        },
+        {
+            $pull: {
+                objectSaved: req.params._id}
+        },
+        {
+            returnNewDocument:true
+        })
+        res.status(200).send({message: "Unsave successful"})
+    } catch (error) {
+        res.status(500).send({error})
+    }
+}
+
+
+module.exports = {getAllObject, addObject, getObjectById, saveObject, unsaveObject}

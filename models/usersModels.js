@@ -17,9 +17,15 @@ const Users = mongoose.Schema(
             type: String,
             required: [true, "Please enter password"]
         },
+
+        objectSaved: {
+            type: Array
+        },
+        
         token: {
             type: String
         }
+        
 
     },
     {

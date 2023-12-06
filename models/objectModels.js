@@ -1,6 +1,6 @@
 const mongoose = require('mongoose')
 
-const Object = mongoose.Schema (
+const Objects = mongoose.Schema (
     {
         objectName: {
             type: String,
@@ -34,6 +34,6 @@ const Object = mongoose.Schema (
     }
 )
 
-const objectList = mongoose.model('Object', Object)
+const objectList = mongoose.model('Object', Objects)
 
 module.exports = objectList;

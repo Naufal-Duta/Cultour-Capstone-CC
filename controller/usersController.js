@@ -1,4 +1,5 @@
 const Users = require('../models/usersModels')
+const Objects = require('../models/objectModels')
 const bcrypt = require('bcrypt')
 const jwt = require("jsonwebtoken")
 require("dotenv").config();
@@ -78,4 +79,33 @@ const loginUsers = async (req, res) => {
     }
 }
 
-module.exports = { registerUsers, loginUsers }
+const getUserById = async (req, res) => {
+    try {
+        const user = await Users.findOne({
+            _id : req.params._id
+        })
+        if (user) {
+            res.status(200).send({user})
+        }
+        else {
+            res.status(400).send({message: "User tidak ditemukan"})
+        }
+    } catch (error) {
+        res.status(500).send(error)
+    }
+}
+
+const getSavedObjects = async (req, res) => {
+    try {
+        const user = await Users.findOne({
+            _id: req.params._id
+        })
+        res.status(200).send({
+            objectSaved: user.objectSaved
+        })
+    } catch (error) {
+        res.status(500).send(error)
+    }
+}
+
+module.exports = { registerUsers, loginUsers, getUserById, getSavedObjects }
