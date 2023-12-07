@@ -1,7 +1,8 @@
 const Users = require('../models/usersModels')
-const Objects = require('../models/objectModels')
+const Object = require('../models/objectModels')
 const bcrypt = require('bcrypt')
 const jwt = require("jsonwebtoken")
+
 require("dotenv").config();
 
 const registerUsers = async (req, res) => {
@@ -66,12 +67,8 @@ const loginUsers = async (req, res) => {
             {
                 token: token
             })
-            
-            user.token = token;
-            res.status(200).send({
-                success:true,
-                data : {user}
-            });
+            console.log(token)
+            res.redirect('/api/object');
         }
 
         else if (match == false) {
@@ -124,9 +121,18 @@ const getSavedObjects = async (req, res) => {
         const user = await Users.findOne({
             _id: req.params._id
         })
-        res.status(200).send({
-            objectSaved: user.objectSaved
+
+        const getUserSavedObject = user.objectSaved
+        const SavedObject = []
+        await Promise.all (
+            getUserSavedObject.map(async (object) => {
+            const getObject = await Object.findOne({ 
+                _id: object
+            })
+            SavedObject.push(getObject)
         })
+        )
+        res.status(200).send({SavedObject})
     } catch (error) {
         res.status(500).send(error)
     }
