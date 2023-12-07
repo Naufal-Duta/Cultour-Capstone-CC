@@ -59,7 +59,14 @@ const loginUsers = async (req, res) => {
             {
                 expiresIn :"2h",
             })
-    
+            
+            await Users.findOneAndUpdate({
+                username: req.body.username
+            },
+            {
+                token: token
+            })
+            
             user.token = token;
             res.status(200).send({
                 success:true,
@@ -76,6 +83,23 @@ const loginUsers = async (req, res) => {
     catch (error) {
         console.log(error.message)
         res.status(500).json({message: error.message})
+    }
+}
+
+const getAllUser = async (req, res) => {
+    try {
+        const listUser = await Users.find()
+        if (listUser) {
+            res.status(200).send({
+                success:true,
+                listUser
+            })
+        }
+        else {
+            res.status(400).send({message: "Tidak ada user"})
+        }
+    } catch (error) {
+        res.status(500).send(error)
     }
 }
 
@@ -108,4 +132,4 @@ const getSavedObjects = async (req, res) => {
     }
 }
 
-module.exports = { registerUsers, loginUsers, getUserById, getSavedObjects }
+module.exports = { registerUsers, loginUsers, getUserById, getSavedObjects, getAllUser }

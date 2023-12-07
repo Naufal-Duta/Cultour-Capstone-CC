@@ -5,7 +5,7 @@ const getAllObject = async (req, res) => {
     try {
         const listObject = await Object.find()
         res.status(200).send({
-            sucess:true,
+            success:true,
             listObject,
         });
     } catch (error) {
@@ -50,8 +50,8 @@ const addObject = async (req, res) => {
 
 const saveObject = async (req, res) => {
     try {
-        const userToken = req.headers.userToken
-        await Users.findOneAndUpdate({
+        const userToken = req.headers["x-access-token"]
+        const user = await Users.findOneAndUpdate({
             token: userToken
         },
         {
@@ -59,9 +59,9 @@ const saveObject = async (req, res) => {
                 objectSaved: req.params._id}
         },
         {
-            returnNewDocument:true
+            new:true
         })
-        res.status(200).send({message: "Save successful"})
+        res.status(200).send({user})
     } catch (error) {
         res.status(500).send({error})
     }
@@ -69,8 +69,8 @@ const saveObject = async (req, res) => {
 
 const unsaveObject = async (req, res) => {
     try {
-        const userToken = req.headers.userToken
-        await Users.findOneAndUpdate({
+        const userToken = req.headers["x-access-token"]
+        const user = await Users.findOneAndUpdate({
             token: userToken
         },
         {
@@ -78,9 +78,9 @@ const unsaveObject = async (req, res) => {
                 objectSaved: req.params._id}
         },
         {
-            returnNewDocument:true
+            new:true
         })
-        res.status(200).send({message: "Unsave successful"})
+        res.status(200).send({user})
     } catch (error) {
         res.status(500).send({error})
     }
