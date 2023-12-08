@@ -1,6 +1,7 @@
 const express = require('express');
 const { loginUsers, registerUsers, getUserById, getSavedObjects, getAllUser } = require('../controller/usersController');
 const {verifyRegister} = require('../middleware/verifyRegister')
+const auth = require('../middleware/auth')
 
 const router = express.Router()
 
@@ -12,7 +13,7 @@ router.get('/:_id', getUserById)
 
 router.get('/', getAllUser)
 
-router.get('/:_id/saved', getSavedObjects)
+router.get('/:_id/saved', auth, getSavedObjects)
 
 
 module.exports = router;
