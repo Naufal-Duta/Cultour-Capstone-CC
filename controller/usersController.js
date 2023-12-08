@@ -67,7 +67,6 @@ const loginUsers = async (req, res) => {
             {
                 token: token
             })
-            console.log(token)
             res.redirect('/api/object');
         }
 
