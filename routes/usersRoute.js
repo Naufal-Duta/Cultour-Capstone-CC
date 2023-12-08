@@ -13,7 +13,7 @@ router.get('/:_id', getUserById)
 
 router.get('/', getAllUser)
 
-router.get('/:_id/saved', auth, getSavedObjects)
+router.post('/saved', auth, getSavedObjects)
 
 
 module.exports = router;

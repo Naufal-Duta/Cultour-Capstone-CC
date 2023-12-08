@@ -117,22 +117,25 @@ const getUserById = async (req, res) => {
 
 const getSavedObjects = async (req, res) => {
     try {
-        const userToken = req.headers["x-access-token"]
+        const token = req.headers["x-access-token"]
         const user = await Users.findOne({
-            token: userToken
+            token: token
         })
-
         const getUserSavedObject = user.objectSaved
-        const SavedObject = []
+        const objectSaved = []
         await Promise.all (
             getUserSavedObject.map(async (object) => {
             const getObject = await Object.findOne({ 
                 _id: object
             })
-            SavedObject.push(getObject)
+            objectSaved.push(getObject)
         })
         )
-        res.status(200).send({SavedObject})
+        res.status(200).send({
+            success: true,
+            objectSaved
+        })
+
     } catch (error) {
         res.status(500).send(error)
     }
