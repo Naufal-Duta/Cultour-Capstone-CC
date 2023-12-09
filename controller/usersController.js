@@ -7,29 +7,23 @@ require("dotenv").config();
 
 const registerUsers = async (req, res) => {
     try {
-        if(req.body.password === req.body.repeat_password) {
-            const register = await Users.create({
-                username: req.body.username,
-                email: req.body.email,
-                password: req.body.password,
-            })
-            const token = jwt.sign(
-                {
-                    email: req.body.email,
-                    password: req.body.password
-                },
-                process.env.TOKEN_KEY,
+        const register = await Users.create({
+            username: req.body.username,
+            email: req.body.email,
+            password: req.body.password,
+        })
+        const token = jwt.sign(
             {
-                expiresIn :"2h",
-            })
-    
-            register.token = token;
-            res.json(register);
-        }
-        
-        else if (req.body.password !== req.body.repeat_password) {
-            res.status(400).send({message: "Enter the same password"});
-        }
+                email: req.body.email,
+                password: req.body.password
+            },
+            process.env.TOKEN_KEY,
+        {
+            expiresIn :"2h",
+        })
+
+        register.token = token;
+        res.json(register);
 
     } catch (error) {
         console.log(error.message)
@@ -118,10 +112,11 @@ const getUserById = async (req, res) => {
 const getSavedObjects = async (req, res) => {
     try {
         const authHeader = req.headers["authorization"]
-        const token = authHeader && authHeader.split(' ')[1]
+        const userToken = authHeader && authHeader.split(' ')[1]
         const user = await Users.findOne({
-            token: token
+            token: userToken
         })
+        
         const getUserSavedObject = user.objectSaved
         const objectSaved = []
         await Promise.all (

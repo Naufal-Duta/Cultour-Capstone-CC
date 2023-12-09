@@ -6,6 +6,7 @@ const config = process.env;
 const verifyToken = (req, res, next) => {
   const authHeader = req.headers["authorization"]
   const token = authHeader && authHeader.split(' ')[1]
+  console.log(token)
   if (!token) {
     return res.status(403).send("A token is required for authentication");
   }
