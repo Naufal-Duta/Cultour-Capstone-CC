@@ -23,7 +23,10 @@ const registerUsers = async (req, res) => {
         })
 
         register.token = token;
-        res.json(register);
+        res.status(200).send({
+            error: false,
+            message: "user created"
+        });
 
     } catch (error) {
         console.log(error.message)
@@ -61,7 +64,16 @@ const loginUsers = async (req, res) => {
             {
                 token: token
             })
-            res.redirect('/api/object');
+
+            res.status(200).send({
+                error: false,
+                message: "Success",
+                loginResult: {
+                    userId: user._id,
+                    name: user.username,
+                    token: token
+                }
+            });
         }
 
         else if (match == false) {
