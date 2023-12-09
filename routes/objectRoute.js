@@ -6,7 +6,7 @@ const router = express.Router()
 
 router.post('/add', addObject);
 
-router.get('/', getAllObject);
+router.get('/', auth, getAllObject);
 
 router.get('/list/:_id', auth, getObjectById);
 

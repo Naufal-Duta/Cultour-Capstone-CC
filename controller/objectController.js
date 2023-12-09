@@ -50,9 +50,10 @@ const addObject = async (req, res) => {
 
 const saveObject = async (req, res) => {
     try {
-        const userToken = req.headers["x-access-token"]
+        const authHeader = req.headers["authorization"]
+        const token = authHeader && authHeader.split(' ')[1]
         const user = await Users.findOneAndUpdate({
-            token: userToken
+            token: token
         },
         {
             $push: {
@@ -69,9 +70,10 @@ const saveObject = async (req, res) => {
 
 const unsaveObject = async (req, res) => {
     try {
-        const userToken = req.headers["x-access-token"]
+        const authHeader = req.headers["authorization"]
+        const token = authHeader && authHeader.split(' ')[1]
         const user = await Users.findOneAndUpdate({
-            token: userToken
+            token: token
         },
         {
             $pull: {

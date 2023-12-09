@@ -117,7 +117,8 @@ const getUserById = async (req, res) => {
 
 const getSavedObjects = async (req, res) => {
     try {
-        const token = req.headers["x-access-token"]
+        const authHeader = req.headers["authorization"]
+        const token = authHeader && authHeader.split(' ')[1]
         const user = await Users.findOne({
             token: token
         })
