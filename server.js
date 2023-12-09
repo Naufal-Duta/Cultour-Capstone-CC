@@ -14,8 +14,8 @@ const PORT = process.env.PORT
 
 app.use(cors())
 app.use(express.json()) 
-app.use('/api/users', usersRoute);
-app.use('/api/object', objectRoute);
+app.use('/users', usersRoute);
+app.use('/object', objectRoute);
 
 app.get('/', (req, res) => {
     res.send('GET diterima')

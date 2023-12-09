@@ -38,11 +38,11 @@ const loginUsers = async (req, res) => {
 
     try {
         const user = await Users.findOne({
-            username: req.body.username
+            email: req.body.email
         })   
         
         if (!user) {
-            return res.status(404).send({ message: "Username / Password incorrect" });
+            return res.status(404).send({ message: "Email / Password incorrect" });
         }
 
         const match = await bcrypt.compare(req.body.password, user.password);
