@@ -23,7 +23,7 @@ const registerUsers = async (req, res) => {
         })
 
         register.token = token;
-        res.status(200).send({
+        res.status(200).json({
             error: false,
             message: "user created"
         });
@@ -65,7 +65,7 @@ const loginUsers = async (req, res) => {
                 token: token
             })
 
-            res.status(200).send({
+            res.status(200).json({
                 error: false,
                 message: "Success",
                 loginResult: {
