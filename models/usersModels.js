@@ -25,11 +25,8 @@ const Users = mongoose.Schema(
         token: {
             type: String
         }
-    
-    },
-    {
-        timestamps: true
-    }
+        
+    }, { versionKey: false }
 )
 
 Users.pre('save', async function(next) {
