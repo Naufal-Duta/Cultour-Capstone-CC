@@ -5,6 +5,13 @@ const jwt = require("jsonwebtoken")
 
 require("dotenv").config();
 
+const errorMethod = (req, res) => {
+    res.status(405).json({
+        error: true,
+        message: "Method not allowed"
+    });
+}
+
 const registerUsers = async (req, res) => {
     try {
         const register = await Users.create({
@@ -156,4 +163,4 @@ const getSavedObjects = async (req, res) => {
     }
 }
 
-module.exports = { registerUsers, loginUsers, getUserById, getSavedObjects, getAllUser, getRegisterUsers }
+module.exports = { registerUsers, loginUsers, getUserById, getSavedObjects, getAllUser, getRegisterUsers, errorMethod }

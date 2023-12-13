@@ -25,8 +25,6 @@ app.get("/test", auth, (req, res) => {
     res.status(200).send('POST diterima');
 });
 
-app.use(errorMiddleware);
-
 mongoose.connect(MONGO_URL)
     .then(() => {
         app.listen(3000, () => {
