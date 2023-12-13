@@ -31,7 +31,7 @@ const Objects = mongoose.Schema (
         }
 
         
-    }
+    }, { versionKey: false }
 )
 
 const objectList = mongoose.model('Object', Objects)
