@@ -34,6 +34,13 @@ const registerUsers = async (req, res) => {
     }
 }
 
+const getRegisterUsers = async (req, res) => {
+    res.status(400).json({
+        error: true,
+        message: "not found"
+    });
+}
+
 const loginUsers = async (req, res) => {
 
     try {
@@ -149,4 +156,4 @@ const getSavedObjects = async (req, res) => {
     }
 }
 
-module.exports = { registerUsers, loginUsers, getUserById, getSavedObjects, getAllUser }
+module.exports = { registerUsers, loginUsers, getUserById, getSavedObjects, getAllUser, getRegisterUsers }
