@@ -1,8 +1,9 @@
 const express = require('express')
 var cors = require('cors')
 const usersRoute = require('./routes/usersRoute')
+const logAndReg = require('./routes/logAndReg')
 const objectRoute = require('./routes/objectRoute')
-const errorMiddleware = require('./middleware/errorMiddleware')
+const homeRoute = require('./routes/homeRoute')
 const auth = require('./middleware/auth')
 const mongoose = require('mongoose')
 require('dotenv').config()
@@ -14,16 +15,10 @@ const PORT = process.env.PORT
 
 app.use(cors())
 app.use(express.json()) 
+
+app.use('/', logAndReg)
+app.use('/home', homeRoute)
 app.use('/users', usersRoute);
-app.use('/object', objectRoute);
-
-app.get('/', (req, res) => {
-    res.send('GET diterima')
-});
-
-app.get("/test", auth, (req, res) => {
-    res.status(200).send('POST diterima');
-});
 
 mongoose.connect(MONGO_URL)
     .then(() => {

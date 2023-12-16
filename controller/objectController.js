@@ -1,12 +1,12 @@
-const Object = require('../models/objectModels')
+const Tourist_Attractions_list = require('../models/AttractionsModels')
 const Users = require('../models/usersModels')
 
-const getAllObject = async (req, res) => {
+const getAllAttractions = async (req, res) => {
     try {
-        const listObject = await Object.find()
+        const places = await Tourist_Attractions_list.find()
         res.status(200).send({
             success:true,
-            listObject,
+            places,
         });
     } catch (error) {
         res.status(500).json({message: error.message})
@@ -34,12 +34,14 @@ const getObjectById = async (req, res) => {
 
 const addObject = async (req, res) => {
     try {
-        const createObject = await Object.create({
-            objectName: req.body.objectName,
-            address: req.body.address,
-            rating: req.body.rating,
+        const createObject = await Tourist_Attractions_list.create({
+            _id: req.body._id,
+            name: req.body.name,
+            address_full: req.body.address_full,
             category: req.body.category,
-            description: req.body.description
+            latitude: req.body.latitude,
+            longitude: req.body.longitude,
+            rating: req.body.rating
         })
         res.json(createObject);
 
@@ -89,4 +91,4 @@ const unsaveObject = async (req, res) => {
 }
 
 
-module.exports = {getAllObject, addObject, getObjectById, saveObject, unsaveObject}
+module.exports = {getAllAttractions, addObject, getObjectById, saveObject, unsaveObject}

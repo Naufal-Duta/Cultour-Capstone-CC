@@ -1,5 +1,5 @@
 const Users = require('../models/usersModels')
-const Object = require('../models/objectModels')
+const Object = require('../models/AttractionsModels')
 const bcrypt = require('bcrypt')
 const jwt = require("jsonwebtoken")
 
@@ -37,7 +37,10 @@ const registerUsers = async (req, res) => {
 
     } catch (error) {
         console.log(error.message)
-        res.status(500).json({message: error.message})
+        res.status(500).json({
+            error: true,
+            message: "not found"
+        })
     }
 }
 
@@ -54,10 +57,6 @@ const loginUsers = async (req, res) => {
         const user = await Users.findOne({
             email: req.body.email
         })   
-        
-        if (!user) {
-            return res.status(404).send({ message: "Email / Password incorrect" });
-        }
 
         const match = await bcrypt.compare(req.body.password, user.password);
 
@@ -98,7 +97,10 @@ const loginUsers = async (req, res) => {
 
     catch (error) {
         console.log(error.message)
-        res.status(500).json({message: error.message})
+        res.status(500).json({
+            error: true,
+            message: "not found"
+        })
     }
 }
 
