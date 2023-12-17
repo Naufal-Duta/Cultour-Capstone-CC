@@ -5,16 +5,19 @@ from tensorflow.keras.models import load_model
 import pandas as pd
 from geopy.distance import geodesic
 
+pd.set_option('display.max_columns', None)
+pd.set_option('display.max_rows', None)
+pd.set_option('display.expand_frame_repr', False)
+
 tourist_attraction = pd.read_excel('Tourist Attraction_List.xlsx')
 bus_route = pd.read_excel('bus_route_merged.xlsx')
 df_restaurant = pd.read_excel('Restaurant_List_Preprocessed.xlsx')
 df_hotels = pd.read_excel('Hotel_List_Preprocessed.xlsx')
+recommended_place = None
 
 app = Flask(__name__)
 app.config['MODEL_FILE'] = 'model.h5'
 model = load_model(app.config['MODEL_FILE'], compile=False)
-
-model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['mse'], run_eagerly=True)
 
 def dict_encoder(col, data):
 
@@ -59,18 +62,11 @@ def find_nearest_hotels(place):
     
     return nearest_hotels[['name', 'latitude', 'longitude']]
 
-
-@app.route('/recommend', methods=['POST'])
-def recommend():
-
-    preferences = request.json
-    data_array = preferences.get('data', [])
-    userrating = pd.DataFrame(data_array)
+def predict_recommend(request):
+    userrating = pd.DataFrame(request)
     df = userrating.copy()
     df2 = tourist_attraction.copy()
-
     user_to_user_encoded, user_encoded_to_user = dict_encoder('user_id', df)
-
     place_to_place_encoded, place_encoded_to_place = dict_encoder('place_id', df2)
 
     place_df = tourist_attraction[['place_id','name','category','rating','latitude','longitude']]
@@ -82,6 +78,7 @@ def recommend():
         set(place_not_visited)
         .intersection(set(place_to_place_encoded.keys()))
     )
+
     place_not_visited = [[place_to_place_encoded.get(x)] for x in place_not_visited]
     user_encoder = user_to_user_encoded.get(user_id)
     user_place_array = np.hstack(
@@ -89,94 +86,125 @@ def recommend():
     )
 
     user_place_array = [user_place_array[:, 0], user_place_array[:, 1]]
-
-
     ratings = model.predict(user_place_array).flatten()
-
     top_ratings_indices = ratings.argsort()[-5:][::-1]
     recommended_place_ids = [
         place_encoded_to_place.get(place_not_visited[x][0]) for x in top_ratings_indices
     ]
 
-    print('Daftar rekomendasi untuk: {}'.format('User ' + str(user_id)))
-    print('===' * 15,'\n')
-    print('----' * 15)
-    print('Tempat dengan rating wisata paling tinggi dari user')
-    print('----' * 15)
-
-    top_place_user = (
-        place_visited_by_user.sort_values(
-            by = 'rating',
-            ascending=False
-        )
-        .head(5)
-        .place_id.values
-    )
-
-    place_df_rows = place_df[place_df['place_id'].isin(top_place_user)]
-    for row in place_df_rows.itertuples():
-        print(row.name, ':', row.category)
-
-    print('')
-    print('----' * 15)
-    print('Top 5 place recommendation')
-    print('----' * 15)
-
     recommended_place = place_df[place_df['place_id'].isin(recommended_place_ids)]
-    for row, i in zip(recommended_place.itertuples(), range(1,8)):
-        print(i,'.', row.name, '\n    ', row.category, ',', 'Rating Wisata ', row.rating,'\n')
+    recommended_place_list = recommended_place.to_dict(orient='records')
+    return recommended_place_list, recommended_place
 
-    print('==='*15)
+@app.route('/recommend', methods=['POST'])
+def recommend():
 
-    result_rows = []
+    global recommended_place
+    preferences = request.json
+    data_array = preferences.get('data', [])
+    recommended_place_list, recommended_place = predict_recommend(data_array)
 
-    for _, place in recommended_place.iterrows():
-        nearest_bus_stop, distance = find_nearest_bus_route(place, bus_route)
-        result_rows.append({
-            'bus_id': nearest_bus_stop['bus_id'],
-            'bus_stop_latitude': nearest_bus_stop['latitude'],
-            'bus_stop_longitude': nearest_bus_stop['longitude'],
-            'distance_to_nearest_bus_stop': distance,
-            'place_name': place['name'],
-            'place_latitude': place['latitude'],
-            'place_longitude': place['longitude'],
-            'nearest_bus_stop': nearest_bus_stop['nama']
+    #Output JSON
+    return jsonify({
+        "message": "Data berhasil diproses", 
+        "Recommended Place": recommended_place_list
         })
 
-    result_df = pd.DataFrame(result_rows)
+@app.route('/recommend/bus', methods=['POST'])
+def nearest_bus():
+    global recommended_place
+    if recommended_place is None:
+        return jsonify({
+                "error": True,
+                "message": "Please Recommend First"
+            }), 400
+        
+    else:
+        result_rows = []
+        for _, place in recommended_place.iterrows():
+            nearest_bus_stop, distance = find_nearest_bus_route(place, bus_route)
+            result_rows.append({
+                'bus_id': nearest_bus_stop['bus_id'],
+                'bus_stop_latitude': nearest_bus_stop['latitude'],
+                'bus_stop_longitude': nearest_bus_stop['longitude'],
+                'distance_to_nearest_bus_stop': distance,
+                'place_name': place['name'],
+                'place_latitude': place['latitude'],
+                'place_longitude': place['longitude'],
+                'nearest_bus_stop': nearest_bus_stop['nama']
+            })
+            
+        result_df = pd.DataFrame(result_rows)
+        nearest_bus_stop_list = result_df
+        nearest_bus_stop_list = nearest_bus_stop_list.to_dict(orient='records')
 
-    result_df = pd.concat([
-    recommended_place,
-    recommended_place.apply(lambda place: find_nearest_restaurants(place).values.flatten(), axis=1).apply(pd.Series)
-    ], axis=1)
+        return jsonify({
+            "message": "Data berhasil diproses", 
+            "Nearest Bus stop from recommended place": nearest_bus_stop_list
+        })
 
-    result_df.drop(['place_id','category','rating'], axis=1, inplace=True)
-    result_df.columns = [
-        'nama_recommended_place', 'latitude_recommended_place', 'longitude_recommended_place',
-        'nama_restaurant_1', 'latitude_restaurant_1', 'longitude_restaurant_1',
-        'nama_restaurant_2', 'latitude_restaurant_2', 'longitude_restaurant_2',
-        'nama_restaurant_3', 'latitude_restaurant_3', 'longitude_restaurant_3',
-    ]
-
-    result_df = pd.concat([
-    recommended_place,
-    recommended_place.apply(lambda place: find_nearest_hotels(place).values.flatten(), axis=1).apply(pd.Series)
-    ], axis=1)
+@app.route('/recommend/hotel', methods=['POST'])
+def nearest_hotel():
+    global recommended_place
+    if recommended_place is None:
+        return jsonify({
+                "error": True,
+                "message": "Please Recommend First"
+            }), 400
     
-    result_df.drop(['place_id','category','rating'], axis=1, inplace=True)
-    result_df.columns = [
-        'nama_recommended_place', 'latitude_recommended_place', 'longitude_recommended_place',
-        'nama_hotel_1', 'latitude_hotel_1', 'longitude_hotel_1',
-        'nama_hotel_2', 'latitude_hotel_2', 'longitude_hotel_2',
-        'nama_hotel_3', 'latitude_hotel_3', 'longitude_hotel_3',
-    ]
+    else:
+        result_df = pd.concat([
+        recommended_place,
+        recommended_place.apply(lambda place: find_nearest_hotels(place).values.flatten(), axis=1).apply(pd.Series)
+        ], axis=1)
+        
+        result_df.drop(['place_id','category','rating'], axis=1, inplace=True)
+        result_df.columns = [
+            'nama_recommended_place', 'latitude_recommended_place', 'longitude_recommended_place',
+            'nama_hotel_1', 'latitude_hotel_1', 'longitude_hotel_1',
+            'nama_hotel_2', 'latitude_hotel_2', 'longitude_hotel_2',
+            'nama_hotel_3', 'latitude_hotel_3', 'longitude_hotel_3',
+        ]
 
-    print(result_df)   
+        nearest_hotel_list = result_df
+        nearest_hotel_list = nearest_hotel_list.to_dict(orient='records')
+
+        return jsonify({
+            "message": "Data berhasil diproses", 
+            "Nearest Hotel from recommended place": nearest_hotel_list
+            })
+
+
+@app.route('/recommend/restaurant', methods=['POST'])
+def nearest_restaurant():
+    global recommended_place
+    if recommended_place != None:
+        return jsonify({
+                "error": True,
+                "message": "Please Recommend First"
+            }), 400
     
-    result_df = result_df.to_dict(orient='records')
+    else:
+        result_df = pd.concat([
+        recommended_place,
+        recommended_place.apply(lambda place: find_nearest_restaurants(place).values.flatten(), axis=1).apply(pd.Series)
+        ], axis=1)
 
-    return jsonify({"message": "Data berhasil diproses", "Place Ids": result_df})
+        result_df.drop(['place_id','category','rating'], axis=1, inplace=True)
+        result_df.columns = [
+            'nama_recommended_place', 'latitude_recommended_place', 'longitude_recommended_place',
+            'nama_restaurant_1', 'latitude_restaurant_1', 'longitude_restaurant_1',
+            'nama_restaurant_2', 'latitude_restaurant_2', 'longitude_restaurant_2',
+            'nama_restaurant_3', 'latitude_restaurant_3', 'longitude_restaurant_3',
+        ]
 
+        nearest_restaurant_list = result_df
+        nearest_restaurant_list = nearest_restaurant_list.to_dict(orient='records')
 
+        return jsonify({
+            "message": "Data berhasil diproses", 
+            "Nearest Restaurant from recommended place": nearest_restaurant_list
+            })
+    
 if __name__ == '__main__':
-    app.run(port=6000)
+    app.run(port=8000)
