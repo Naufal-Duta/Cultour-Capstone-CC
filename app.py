@@ -9,10 +9,10 @@ pd.set_option('display.max_columns', None)
 pd.set_option('display.max_rows', None)
 pd.set_option('display.expand_frame_repr', False)
 
-tourist_attraction = pd.read_excel('Tourist Attraction_List.xlsx')
-bus_route = pd.read_excel('bus_route_merged.xlsx')
-df_restaurant = pd.read_excel('Restaurant_List_Preprocessed.xlsx')
-df_hotels = pd.read_excel('Hotel_List_Preprocessed.xlsx')
+tourist_attraction = pd.read_excel('dataset/Tourist Attraction_List.xlsx')
+bus_route = pd.read_excel('dataset/bus_route_merged.xlsx')
+df_restaurant = pd.read_excel('dataset/Restaurant_List_Preprocessed.xlsx')
+df_hotels = pd.read_excel('dataset/Hotel_List_Preprocessed.xlsx')
 recommended_place = None
 
 app = Flask(__name__)
@@ -50,8 +50,6 @@ def find_nearest_restaurants(place):
     nearest_restaurants = df_restaurant.nsmallest(3, 'distance')
     
     return nearest_restaurants[['name', 'latitude', 'longitude']]
-
-df_hotels = pd.read_excel('Hotel_List_Preprocessed.xlsx')
 
 def find_nearest_hotels(place):
     place_location = (place['latitude'], place['longitude'])
