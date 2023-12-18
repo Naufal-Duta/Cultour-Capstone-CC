@@ -1,9 +1,11 @@
 from flask import Flask, jsonify, request
+import random
 import os
 import numpy as np
 from tensorflow.keras.models import load_model
 import pandas as pd
 from geopy.distance import geodesic
+from blueprints.bus import bus
 
 pd.set_option('display.max_columns', None)
 pd.set_option('display.max_rows', None)
@@ -21,13 +23,13 @@ model = load_model(app.config['MODEL_FILE'], compile=False)
 
 def dict_encoder(col, data):
 
-  unique_val = data[col].unique().tolist()
+    unique_val = data[col].unique().tolist()
 
-  val_to_val_encoded = {x: i for i, x in enumerate(unique_val)}
+    val_to_val_encoded = {x: i for i, x in enumerate(unique_val)}
 
-  val_encoded_to_val = {i: x for i, x in enumerate(unique_val)}
-  return val_to_val_encoded, val_encoded_to_val
- 
+    val_encoded_to_val = {i: x for i, x in enumerate(unique_val)}
+    return val_to_val_encoded, val_encoded_to_val
+
 def find_nearest_bus_route(place, bus_route):
     min_distance = float('inf')
     nearest_bus_route = None
@@ -61,8 +63,7 @@ def find_nearest_hotels(place):
     return nearest_hotels[['name', 'latitude', 'longitude']]
 
 def predict_recommend(request):
-    userrating = pd.DataFrame(request)
-    df = userrating.copy()
+    df = request.copy()
     df2 = tourist_attraction.copy()
     user_to_user_encoded, user_encoded_to_user = dict_encoder('user_id', df)
     place_to_place_encoded, place_encoded_to_place = dict_encoder('place_id', df2)
@@ -100,12 +101,35 @@ def recommend():
     global recommended_place
     preferences = request.json
     data_array = preferences.get('data', [])
-    recommended_place_list, recommended_place = predict_recommend(data_array)
+    
+    if any('category' in item for item in data_array):
+        df = pd.DataFrame(data_array)
+        category = df.category.iloc[0]
+        place_df = tourist_attraction[['place_id', 'name', 'category']]
+        filtered_df = place_df[place_df['category'] == category]
 
-    #Output JSON
-    return jsonify({
-        "message": "Data berhasil diproses", 
-        "Recommended Place": recommended_place_list
+        if filtered_df.empty:
+            return jsonify({
+            "message": "Category Not Found"
+        }), 400
+
+        merged_df = pd.merge(filtered_df, df, on='category', how='inner')
+        rating = pd.DataFrame({'rating': [5] * len(merged_df)})
+        merged_df["rating"] = rating
+        merged_df.drop(['name', 'category'], axis=1, inplace=True)
+        merged_df = merged_df.sample(random.randint(1, 5))
+        recommended_place_list, recommended_place = predict_recommend(merged_df)
+        return jsonify({
+            "message": "Data berhasil diproses", 
+            "Recommended Place": recommended_place_list
+        })
+    
+    elif any('place_id' in item for item in data_array):
+        data_array = pd.DataFrame(data_array)
+        recommended_place_list, recommended_place = predict_recommend(data_array)
+        return jsonify({
+            "message": "Data berhasil diproses", 
+            "Recommended Place": recommended_place_list
         })
 
 @app.route('/recommend/bus', methods=['POST'])
@@ -176,7 +200,7 @@ def nearest_hotel():
 @app.route('/recommend/restaurant', methods=['POST'])
 def nearest_restaurant():
     global recommended_place
-    if recommended_place != None:
+    if recommended_place is None:
         return jsonify({
                 "error": True,
                 "message": "Please Recommend First"
