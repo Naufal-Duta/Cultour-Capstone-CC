@@ -5,7 +5,6 @@ import numpy as np
 from tensorflow.keras.models import load_model
 import pandas as pd
 from geopy.distance import geodesic
-from blueprints.bus import bus
 
 pd.set_option('display.max_columns', None)
 pd.set_option('display.max_rows', None)
