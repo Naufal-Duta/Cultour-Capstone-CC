@@ -18,7 +18,8 @@ app.use(express.json())
 
 app.use('/', logAndReg)
 app.use('/home', homeRoute)
-app.use('/users', usersRoute);
+app.use('/users', usersRoute)
+app.use('/object', objectRoute)
 
 mongoose.connect(MONGO_URL)
     .then(() => {

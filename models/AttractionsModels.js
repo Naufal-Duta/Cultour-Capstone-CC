@@ -32,10 +32,9 @@ const Tourist_Attractions = mongoose.Schema (
         },
 
         image: {
-            type: Array 
+            type: String 
         }
 
-        
     }, {_id: false, versionKey: false }
 )
 

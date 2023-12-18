@@ -35,13 +35,14 @@ const getObjectById = async (req, res) => {
 const addObject = async (req, res) => {
     try {
         const createObject = await Tourist_Attractions_list.create({
-            _id: req.body._id,
+            _id: req.body.place_id,
             name: req.body.name,
             address_full: req.body.address_full,
             category: req.body.category,
             latitude: req.body.latitude,
             longitude: req.body.longitude,
-            rating: req.body.rating
+            rating: req.body.rating,
+            image: req.body.image
         })
         res.json(createObject);
 
