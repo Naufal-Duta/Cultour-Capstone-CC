@@ -94,6 +94,10 @@ def predict_recommend(request):
     recommended_place_list = recommended_place.to_dict(orient='records')
     return recommended_place_list, recommended_place
 
+@app.route('/', methods=['GET'])
+def index():
+    return "API Berhasil"
+
 @app.route('/recommend', methods=['POST'])
 def recommend():
 
