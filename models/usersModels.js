@@ -14,10 +14,6 @@ const Users = mongoose.Schema(
         password: {
             type: String,
         },
-
-        objectSaved: {
-            type: Array
-        },
         
         token: {
             type: String

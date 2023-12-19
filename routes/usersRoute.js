@@ -1,5 +1,5 @@
 const express = require('express');
-const { loginUsers, registerUsers, getUserById, getSavedObjects, getAllUser, errorMethod } = require('../controller/usersController');
+const {getUserById, getSavedObjects, getAllUser, errorMethod } = require('../controller/usersController');
 const auth = require('../middleware/auth');
 const errorMiddleware = require('../middleware/errorMiddleware');
 

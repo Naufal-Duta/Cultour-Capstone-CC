@@ -2,7 +2,7 @@ const mongoose = require('mongoose')
 
 const Tourist_Attractions = mongoose.Schema (
     {
-        _id: {
+        place_id: {
             type: Number,
             required: [true, "Please enter place id"]
         },
@@ -35,7 +35,7 @@ const Tourist_Attractions = mongoose.Schema (
             type: String 
         }
 
-    }, {_id: false, versionKey: false }
+    }, {versionKey: false }
 )
 
 const Tourist_Attractions_list = mongoose.model('Tourist_Attractions', Tourist_Attractions)
