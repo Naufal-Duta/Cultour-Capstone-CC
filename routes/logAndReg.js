@@ -12,4 +12,8 @@ router.post('/login', loginUsers)
 
 router.get('/login', errorMethod)
 
+router.get('/', (req, res) => {
+    res.send("API Berhasil");
+  });
+
 module.exports = router;
