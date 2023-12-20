@@ -86,7 +86,8 @@ const loginUsers = async (req, res) => {
                 error: false,
                 message: "Success",
                 loginResult: {
-                    _id: user._id,
+                    userId: user._id,
+                    email: user.email,
                     name: user.username,
                     token: token
                 }
