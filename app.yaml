@@ -1,0 +1,14 @@
+runtime: nodejs14
+env: standard
+instance_class: F1
+automatic_scaling:
+  min_idle_instances: automatic
+  max_idle_instances: automatic
+  min_pending_latency: automatic
+  max_pending_latency: automatic
+
+env_variables:
+  BUCKET_NAME: mongodb+srv://admin:admin@cultour-instance.u6hfmao.mongodb.net/cultour-database?retryWrites=true&w=majority
+  PORT: 3000
+  NODE_ENV: production
+  TOKEN_KEY: secret
