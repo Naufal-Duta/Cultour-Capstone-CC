@@ -8,7 +8,7 @@ automatic_scaling:
   max_pending_latency: automatic
 
 env_variables:
-  BUCKET_NAME: mongodb+srv://admin:admin@cultour-instance.u6hfmao.mongodb.net/cultour-database?retryWrites=true&w=majority
-  PORT: 3000
-  NODE_ENV: production
-  TOKEN_KEY: secret
+  BUCKET_NAME: 'mongodb+srv://admin:admin@cultour-instance.u6hfmao.mongodb.net/cultour-database?retryWrites=true&w=majority'
+  PORT: '3000'
+  NODE_ENV: 'production'
+  TOKEN_KEY: 'secret'
