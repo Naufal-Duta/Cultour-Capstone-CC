@@ -56,7 +56,6 @@ const getRegisterUsers = async (req, res) => {
 }
 
 const loginUsers = async (req, res) => {
-
     try {
         const user = await Users.findOne({
             email: req.body.email
