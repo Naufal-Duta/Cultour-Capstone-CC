@@ -15,10 +15,14 @@ const getAllAttractions = async (req, res) => {
 
 const getPlacesById = async (req, res) => {
     try {
-        const places = await places.findOne({_id: req.params._id})
+        const places = await Tourist_Attractions_list.findOne({
+            place_id: req.params.place_id
+        })
+        
         if (places) {
             res.status(200).send({
-                success:true,Places,
+                success:true,
+                places,
             });
         }
         

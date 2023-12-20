@@ -6,7 +6,7 @@ const router = express.Router()
 
 router.post('/add', addPlaces);
 
-router.get('/list/:_id', auth, getPlacesById);
+router.get('/list/:place_id', auth, getPlacesById);
 
 router.put('/list/:_id/save',auth, savePlaces);
 
