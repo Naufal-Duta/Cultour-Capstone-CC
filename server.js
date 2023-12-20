@@ -23,7 +23,7 @@ app.use('/places', placesRoute)
 
 mongoose.connect(MONGO_URL)
     .then(() => {
-        app.listen(3000, () => {
+        app.listen(8080, () => {
             console.log(`🚀 Connected to mongoDB and Listening on port ${PORT} 🚀`)
         })
     })
