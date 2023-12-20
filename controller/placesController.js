@@ -13,13 +13,12 @@ const getAllAttractions = async (req, res) => {
     }
 }
 
-const getObjectById = async (req, res) => {
+const getPlacesById = async (req, res) => {
     try {
-        const object = await Object.findOne({_id: req.params._id})
-        if (object) {
+        const places = await places.findOne({_id: req.params._id})
+        if (places) {
             res.status(200).send({
-                success:true,
-                object,
+                success:true,Places,
             });
         }
         
@@ -32,9 +31,9 @@ const getObjectById = async (req, res) => {
     }
 }
 
-const addObject = async (req, res) => {
+const addPlaces = async (req, res) => {
     try {
-        const createObject = await Tourist_Attractions_list.create({
+        const createplaces = await Tourist_Attractions_list.create({
             place_id: req.body.place_id,
             name: req.body.name,
             address_full: req.body.address_full,
@@ -44,14 +43,14 @@ const addObject = async (req, res) => {
             rating: req.body.rating,
             image: req.body.image
         })
-        res.json(createObject);
+        res.json(createplaces);
 
     } catch (error) {
         res.status(500).json({message: error.message})
     }
 }
 
-const saveObject = async (req, res) => {
+const savePlaces = async (req, res) => {
     try {
         const authHeader = req.headers["authorization"]
         const token = authHeader && authHeader.split(' ')[1]
@@ -60,7 +59,7 @@ const saveObject = async (req, res) => {
         },
         {
             $push: {
-                objectSaved: req.params._id}
+                placesSaved: req.params._id}
         },
         {
             new:true
@@ -71,7 +70,7 @@ const saveObject = async (req, res) => {
     }
 }
 
-const unsaveObject = async (req, res) => {
+const unsavePlaces = async (req, res) => {
     try {
         const authHeader = req.headers["authorization"]
         const token = authHeader && authHeader.split(' ')[1]
@@ -80,7 +79,7 @@ const unsaveObject = async (req, res) => {
         },
         {
             $pull: {
-                objectSaved: req.params._id}
+                placesSaved: req.params._id}
         },
         {
             new:true
@@ -92,4 +91,4 @@ const unsaveObject = async (req, res) => {
 }
 
 
-module.exports = {getAllAttractions, addObject, getObjectById, saveObject, unsaveObject}
+module.exports = {getAllAttractions, addPlaces, getPlacesById, savePlaces, unsavePlaces}

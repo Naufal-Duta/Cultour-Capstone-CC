@@ -2,7 +2,7 @@ const express = require('express')
 var cors = require('cors')
 const usersRoute = require('./routes/usersRoute')
 const logAndReg = require('./routes/logAndReg')
-const objectRoute = require('./routes/objectRoute')
+const placesRoute = require('./routes/placesRoute')
 const homeRoute = require('./routes/homeRoute')
 const auth = require('./middleware/auth')
 const mongoose = require('mongoose')
@@ -19,11 +19,11 @@ app.use(express.json())
 app.use('/', logAndReg)
 app.use('/home', homeRoute)
 app.use('/users', usersRoute)
-app.use('/object', objectRoute)
+app.use('/places', placesRoute)
 
 mongoose.connect(MONGO_URL)
     .then(() => {
-        app.listen(3000, () => {
+        app.listen(4000, () => {
             console.log(`🚀 Connected to mongoDB and Listening on port ${PORT} 🚀`)
         })
     })
