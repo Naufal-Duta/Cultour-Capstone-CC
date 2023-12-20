@@ -2,8 +2,11 @@ const Users = require('../models/usersModels')
 const Object = require('../models/AttractionsModels')
 const bcrypt = require('bcrypt')
 const jwt = require("jsonwebtoken")
+const crypto = require('crypto');
 
 require("dotenv").config();
+
+const generateId = crypto.randomInt(1000, 10000000);
 
 const errorMethod = (req, res) => {
     res.status(405).json({
@@ -15,6 +18,7 @@ const errorMethod = (req, res) => {
 const registerUsers = async (req, res) => {
     try {
         const register = await Users.create({
+            _id: generateId,
             username: req.body.username,
             email: req.body.email,
             password: req.body.password,

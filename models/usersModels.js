@@ -3,6 +3,9 @@ const bcrypt = require('bcrypt')
 
 const Users = mongoose.Schema(
     {
+        _id: {
+            type: Number
+        },
         username: {
             type: String,
         },
@@ -19,7 +22,7 @@ const Users = mongoose.Schema(
             type: String
         }
         
-    }, { versionKey: false }
+    }, {_id: false, versionKey: false }
 )
 
 Users.pre('save', async function(next) {
