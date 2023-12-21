@@ -5,11 +5,9 @@ import numpy as np
 from tensorflow.keras.models import load_model
 import pandas as pd
 from geopy.distance import geodesic
+import pymongo
 
-pd.set_option('display.max_columns', None)
-pd.set_option('display.max_rows', None)
-pd.set_option('display.expand_frame_repr', False)
-
+# Reading Dataset
 tourist_attraction = pd.read_excel('dataset/Tourist Attraction_List.xlsx')
 bus_route = pd.read_excel('dataset/bus_route_merged.xlsx')
 df_restaurant = pd.read_excel('dataset/Restaurant_List_Preprocessed.xlsx')
@@ -17,6 +15,14 @@ df_hotels = pd.read_excel('dataset/Hotel_List_Preprocessed.xlsx')
 recommended_place = None
 
 app = Flask(__name__)
+
+# Connecting To MongoDB
+myclient = pymongo.MongoClient("mongodb+srv://admin:admin@cultour-instance.u6hfmao.mongodb.net/cultour-database?retryWrites=true&w=majority")
+mydb = myclient["cultour-database"]
+users_col = mydb["users"]
+places_col = mydb["tourist_attractions"]
+
+# Model Load
 app.config['MODEL_FILE'] = 'model.h5'
 model = load_model(app.config['MODEL_FILE'], compile=False)
 
@@ -100,14 +106,20 @@ def index():
 
 @app.route('/recommend', methods=['POST'])
 def recommend():
-
     global recommended_place
+    # return jsonify(x)
     preferences = request.json
     data_array = preferences.get('data', [])
     
     if any('category' in item for item in data_array):
         df = pd.DataFrame(data_array)
         category = df.category.iloc[0]
+        user_id = df.user_id.iloc[0]
+
+        numpy_int64_value = np.int64(user_id)
+        python_int_value = int(numpy_int64_value)
+        myquery = {"_id": python_int_value }
+
         place_df = tourist_attraction[['place_id', 'name', 'category']]
         filtered_df = place_df[place_df['category'] == category]
 
@@ -121,23 +133,60 @@ def recommend():
         merged_df["rating"] = rating
         merged_df.drop(['name', 'category'], axis=1, inplace=True)
         merged_df = merged_df.sample(random.randint(1, 5))
+
         recommended_place_list, recommended_place = predict_recommend(merged_df)
-        return jsonify({
-            "message": "Data berhasil diproses", 
-            "Recommended Place": recommended_place_list
-        })
-    
+        
+        df = recommended_place.place_id
+        df = df.tolist()
+        newvalues = { "$set": { "saved_places": df } }
+        users_col.update_one(myquery, newvalues)
+
+
     elif any('place_id' in item for item in data_array):
         data_array = pd.DataFrame(data_array)
+        user_id = data_array.user_id.iloc[0]
+        numpy_int64_value = np.int64(user_id)
+        python_int_value = int(numpy_int64_value)
+
+        myquery = {"_id": python_int_value }
+        
         recommended_place_list, recommended_place = predict_recommend(data_array)
-        return jsonify({
+        df = recommended_place.place_id
+        df = df.tolist()
+        newvalues = { "$set": { "saved_places": df } }
+        users_col.update_one(myquery, newvalues)
+
+    
+    return jsonify({
             "message": "Data berhasil diproses", 
             "Recommended Place": recommended_place_list
         })
 
 @app.route('/recommend/bus', methods=['POST'])
 def nearest_bus():
-    global recommended_place
+
+    preferences = request.json
+    data_array = preferences.get('data', [])
+    data_array = pd.DataFrame(data_array)
+    user_id = data_array.user_id.iloc[0]
+    numpy_int64_value = np.int64(user_id)
+    python_int_value = int(numpy_int64_value)
+
+    myquery = {"_id": python_int_value }
+    mydoc = users_col.find(myquery, {"_id": 1, "saved_places": 1})
+    for x in mydoc:
+        saved_places = x["saved_places"]
+    
+    length = len(saved_places) 
+    recommended_place = []
+    for x in range(length):
+        myquery = { "place_id": saved_places[x] }
+        mydoc = places_col.find(myquery, {"_id": 0, "image": 0, "address_full": 0})
+        for a in mydoc:
+            recommended_place.append(a)
+
+    recommended_place = pd.DataFrame(recommended_place)
+
     if recommended_place is None:
         return jsonify({
                 "error": True,
@@ -170,7 +219,28 @@ def nearest_bus():
 
 @app.route('/recommend/hotel', methods=['POST'])
 def nearest_hotel():
-    global recommended_place
+    preferences = request.json
+    data_array = preferences.get('data', [])
+    data_array = pd.DataFrame(data_array)
+    user_id = data_array.user_id.iloc[0]
+    numpy_int64_value = np.int64(user_id)
+    python_int_value = int(numpy_int64_value)
+
+    myquery = {"_id": python_int_value }
+    mydoc = users_col.find(myquery, {"_id": 1, "saved_places": 1})
+    for x in mydoc:
+        saved_places = x["saved_places"]
+    
+    length = len(saved_places) 
+    recommended_place = []
+    for x in range(length):
+        myquery = { "place_id": saved_places[x] }
+        mydoc = places_col.find(myquery, {"_id": 0, "image": 0, "address_full": 0})
+        for a in mydoc:
+            recommended_place.append(a)
+
+    recommended_place = pd.DataFrame(recommended_place)
+
     if recommended_place is None:
         return jsonify({
                 "error": True,
@@ -202,7 +272,28 @@ def nearest_hotel():
 
 @app.route('/recommend/restaurant', methods=['POST'])
 def nearest_restaurant():
-    global recommended_place
+    preferences = request.json
+    data_array = preferences.get('data', [])
+    data_array = pd.DataFrame(data_array)
+    user_id = data_array.user_id.iloc[0]
+    numpy_int64_value = np.int64(user_id)
+    python_int_value = int(numpy_int64_value)
+
+    myquery = {"_id": python_int_value }
+    mydoc = users_col.find(myquery, {"_id": 1, "saved_places": 1})
+    for x in mydoc:
+        saved_places = x["saved_places"]
+    
+    length = len(saved_places) 
+    recommended_place = []
+    for x in range(length):
+        myquery = { "place_id": saved_places[x] }
+        mydoc = places_col.find(myquery, {"_id": 0, "image": 0, "address_full": 0})
+        for a in mydoc:
+            recommended_place.append(a)
+
+    recommended_place = pd.DataFrame(recommended_place)
+
     if recommended_place is None:
         return jsonify({
                 "error": True,
@@ -230,7 +321,7 @@ def nearest_restaurant():
             "message": "Data berhasil diproses", 
             "Nearest Restaurant from recommended place": nearest_restaurant_list
             })
-    
+
 if __name__ == '__main__':
     app.run(debug=True,
             host="0.0.0.0",
