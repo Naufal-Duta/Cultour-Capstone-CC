@@ -6,7 +6,7 @@ const crypto = require('crypto');
 
 require("dotenv").config();
 
-const generateId = crypto.randomInt(1000, 10000000);
+
 
 const errorMethod = (req, res) => {
     res.status(405).json({
@@ -17,6 +17,7 @@ const errorMethod = (req, res) => {
 
 const registerUsers = async (req, res) => {
     try {
+        const generateId = crypto.randomInt(100000000000, 1000000000000);
         const register = await Users.create({
             _id: generateId,
             username: req.body.username,
